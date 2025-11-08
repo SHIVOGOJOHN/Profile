@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, flash, redirect, url_for
 import os
 import dotenv
 import sendgrid
-from sendgrid.helpers.mail import Mail
+from sendgrid. helpers.mail import Mail
 
 dotenv.load_dotenv()
 app = Flask(__name__)
