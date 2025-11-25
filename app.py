@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, flash, redirect, url_for
 import os
 import dotenv
 import sendgrid
-from sendgrid.helpers.mail import Mail
+from sendgrid. helpers.mail import Mail
 
 dotenv.load_dotenv()
 app = Flask(__name__)
@@ -223,5 +223,3 @@ def contact():
 
     return render_template('index.html') # Render index.html for GET requests to /contact or if there's an error
 
-if __name__ == '__main__':
-    app.run(debug=True, use_reloader=False)
