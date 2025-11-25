@@ -12,7 +12,7 @@
     <header>
         <div class="header-container">
             <div class="profile-container">
-                <img src="https://raw.githubusercontent.com/SHIVOGOJOHN/myportfolio/main/static/images/WhatsApp%20Image%202025-10-22%20at%2012.01.53_ecabafda.jpg" alt="Profile Picture" class="profile-picture">
+                <img src="https://raw.githubusercontent.com/SHIVOGOJOHN/myportfolio/main/static/images/WhatsApp%20Image%202025-10-22%20at%2012.01.53_ecabafda.jpg" alt="Profile Picture" class="profile-picture magnifiable">
                 <div class="header-text">
                     <a href="{{ url_for('index') }}" style="text-decoration: none; color: inherit;"><h1>Shivogo John</h1></a>
                     <p class="job-title">Machine Learning Engineer</p>
@@ -62,30 +62,43 @@
             });
         });
 
-        // Profile picture enlargement
+        // Image enlargement using a lightbox approach
         document.addEventListener('DOMContentLoaded', function() {
-            const profilePicture = document.querySelector('.profile-picture');
+            const magnifiableImages = document.querySelectorAll('.magnifiable');
             const body = document.body;
-            let overlay = document.querySelector('.overlay');
 
-            // Create overlay if it doesn't exist
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.classList.add('overlay');
-                body.appendChild(overlay);
-            }
+            magnifiableImages.forEach(image => {
+                image.addEventListener('click', function() {
+                    // Create overlay
+                    const overlay = document.createElement('div');
+                    overlay.classList.add('overlay', 'active');
+                    
+                    // Create lightbox container
+                    const lightbox = document.createElement('div');
+                    lightbox.classList.add('lightbox');
+                    
+                    // Create image inside lightbox
+                    const lightboxImage = document.createElement('img');
+                    lightboxImage.src = image.src;
+                    
+                    // Add image to lightbox
+                    lightbox.appendChild(lightboxImage);
+                    
+                    // Add overlay and lightbox to body
+                    body.appendChild(overlay);
+                    body.appendChild(lightbox);
+                    body.style.overflow = 'hidden'; // Prevent scrolling
 
-            profilePicture.addEventListener('click', function() {
-                profilePicture.classList.toggle('enlarged');
-                overlay.classList.toggle('active');
-                // Prevent scrolling when enlarged
-                body.style.overflow = profilePicture.classList.contains('enlarged') ? 'hidden' : '';
-            });
+                    // Close function
+                    const closeLightbox = () => {
+                        body.removeChild(overlay);
+                        body.removeChild(lightbox);
+                        body.style.overflow = '';
+                    };
 
-            overlay.addEventListener('click', function() {
-                profilePicture.classList.remove('enlarged');
-                overlay.classList.remove('active');
-                body.style.overflow = '';
+                    overlay.addEventListener('click', closeLightbox);
+                    lightbox.addEventListener('click', closeLightbox);
+                });
             });
         });
     </script>
@@ -119,13 +132,24 @@
 
     <section id="projects">
         <h2>Projects</h2>
-        {% for project in projects %}
-        <div class="project">
-            <h3>{{ project.title }}</h3>
-            <p>{{ project.description }}</p>
-            <a href="{{ url_for(project.details_page) }}" class="btn"><i class="fas fa-book-open"></i> Read More</a>
+        <div class="grid-container">
+            {% for project in projects %}
+            <div class="project">
+                <div class="card-header-image">
+                    {% if project.title == 'Federated Learning with Blockchain & IPFS' %}
+                        <img src="{{ url_for('static', filename='FedBlockChainAI.png') }}" alt="Project Image" class="magnifiable">
+                    {% elif project.title == 'Fairness and Explainability Under Concept Drift' %}
+                        <img src="{{ url_for('static', filename='mlops_main.png') }}" alt="Project Image" class="magnifiable">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='mlops_sub.png') }}" alt="Project Image" class="magnifiable">
+                    {% endif %}
+                </div>
+                <h3>{{ project.title }}</h3>
+                <p>{{ project.description }}</p>
+                <a href="{{ url_for(project.details_page) }}" class="btn"><i class="fas fa-book-open"></i> Read More</a>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
         <div class="view-all-btn-container">
             <a href="{{ url_for('all_projects') }}" class="btn">View All Projects</a>
         </div>
@@ -133,13 +157,23 @@
 
     <section id="research">
         <h2>Applied Innovation & Real-World Impact</h2>
-        {% for paper in research_papers %}
-        <div class="research-paper">
-            <h3>{{ paper.title }}</h3>
-            <p>{{ paper.description }}</p>
-            <a href="{{ url_for(paper.details_page) }}" class="btn"><i class="fas fa-book-open"></i> Read More</a>
+        <div class="grid-container">
+            {% for paper in research_papers %}
+            <div class="research-paper">
+                <div class="card-header-image">
+                    {% if paper.title == 'Federated Learning with Blockchain & IPFS' %}
+                        <img src="{{ url_for('static', filename='FedBlockChainAI.png') }}" alt="Research Image" class="magnifiable">
+                    {% elif paper.title == 'Fairness and Explainability Under Concept Drift' %}
+                        <img src="{{ url_for('static', filename='mlops_main.png') }}" alt="Research Image" class="magnifiable">
+                                    {% else %}
+                                        <img src="{{ url_for('static', filename='mlops_sub.png') }}" alt="Research Image" class="magnifiable">                    {% endif %}
+                </div>
+                <h3>{{ paper.title }}</h3>
+                <p>{{ paper.description }}</p>
+                <a href="{{ url_for(paper.details_page) }}" class="btn"><i class="fas fa-book-open"></i> Read More</a>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
         <div class="view-all-btn-container">
             <a href="{{ url_for('all_research') }}" class="btn">View All Research & Applications</a>
         </div>
@@ -151,11 +185,9 @@
             <div class="skill-column">
                 <h3>Languages</h3>
                 <ul>
-                    <li>Python</li>
                     <li>C</li>
-                    <li>Javascript</li>
-                    <li>C++</li>
-                    <li>SQL</li>
+                    <li>Python</li>
+                    <li>C++17</li>
                 </ul>
             </div>
             <div class="skill-column">
@@ -164,9 +196,9 @@
                     <li>Kubernetes</li>
                     <li>MLflow</li>
                     <li>Docker</li>
-                    <li>Azure ML</li>
-                    <li>Flask</li>
-                    <li>Fast API</li>
+                    <li>Azure ML/AWS</li>
+                    <li>Flask/Fast API</li>
+                    <li></li>
                 </ul>
             </div>
             <div class="skill-column">
@@ -187,7 +219,7 @@
                 </ul>
             </div>
             <div class="skill-column">
-                <h3>My Other Skills</h3>
+                <h3>Other Skills</h3>
                 <ul>
                     <li>Web Development<br><em>(Flask, HTML, CSS, Bootstrap, Javascript)</em></li>
                     <li>Web Scraping<br><em>(Python)</em></li>
@@ -277,5 +309,3 @@
                 body.style.overflow = '';
             });
         });
-    </script>
-</html>

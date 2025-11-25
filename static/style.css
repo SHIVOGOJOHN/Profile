@@ -19,24 +19,27 @@ body {
     transform: translateY(20px);
     animation: fadeInSlideUp 0.8s ease-out forwards;
     animation-delay: 0.2s;
-    cursor: pointer; /* Indicate it's clickable */
+    cursor: zoom-in; /* Indicate it's clickable */
     transition: all 0.3s ease-in-out; /* Smooth transition for enlargement */
 }
 
-/* Enlarged profile picture styles */
-.profile-picture.enlarged {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: auto !important; /* Allow width to adjust based on max-width/height */
-    height: auto !important; /* Allow height to adjust based on max-width/height */
-    max-width: 90vw !important; /* Take up 90% of viewport width */
-    max-height: 90vh !important; /* Limit height to 90% of viewport height */
-    object-fit: contain !important; /* Ensure entire image is visible */
-    border-radius: 0 !important; /* Remove circular border */
-    z-index: 1000 !important; /* Bring to front */
-    border: none !important; /* Remove border */
+/* Lightbox styles */
+.lightbox {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    cursor: zoom-out;
+}
+
+.lightbox img {
+    max-width: 90vw;
+    max-height: 90vh;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
 }
 
 /* Overlay for enlarged image */
@@ -209,6 +212,7 @@ section {
     border-radius: 8px;
     border: 1px solid #333;
     transition: transform 0.3s ease;
+    text-align: center;
 }
 
 .project:hover, .research-paper:hover {
@@ -272,7 +276,14 @@ section {
 }
 
 .view-all-btn-container {
+    width: 100%;
     text-align: center;
+}
+
+.view-all-btn-container .btn {
+    display: block;
+    margin: 1.5rem auto; /* Add some vertical margin for spacing */
+    width: fit-content; /* Make the block element only as wide as its content */
 }
 
 #learning-roadmap .roadmap-container {
@@ -645,4 +656,31 @@ footer .copyright {
 #research-details a:hover {
     color: #018786; /* Slightly darker accent on hover */
     text-decoration: underline; /* Add underline on hover for better UX */
+}
+
+/* Grid layout for projects and research papers */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.card-header-image {
+    height: 200px; /* Adjust as needed */
+    margin-bottom: 1rem;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+}
+
+.card-header-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: zoom-in;
+}
+
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+    }
 }
