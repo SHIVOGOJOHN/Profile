@@ -1,116 +1,128 @@
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, jsonify, session
 import os
 import dotenv
 import sendgrid
-from sendgrid. helpers.mail import Mail
+from sendgrid.helpers.mail import Mail
+import json
+import time
+from google_ai import ask_ai_model
 
 dotenv.load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
-# Dummy data for projects and research papers
-projects_data = [
-    {
-        'title': 'Federated Learning with Blockchain & IPFS',
-        'description': 'A decentralized, auditable, and transparent AI training ecosystem.',
-        'details_page': 'project_blockchain_ai'
-    },
-    {
-        'title': 'AI-driven Economic Stress-Testing Twins for SMEs',
-        'description': 'Create a synthetic-digital twin that simulates an SME under economic shocks so lenders and policymakers can stress test resilience.',
-        'details_page': 'project_sme_twins'
-    },
-    {
-        'title': 'Neuro-symbolic AI for Explainable Creditworthiness',
-        'description': 'Combine symbolic reasoning with deep models to yield credit decisions that are transparent, auditable, and defensible.',
-        'details_page': 'project_creditworthiness'
-    },
-    {
-        'title': 'Self-healing Distributed Systems',
-        'description': 'Detect failures and automatically remediate faults across cloud, edge, IoT, and blockchain networks.',
-        'details_page': 'project_self_healing'
-    },
-    {
-        'title': 'Predictive Resilience System for Supply Chains',
-        'description': 'Forecast disruptions from geopolitics, weather, cyber incidents, and suggest mitigation routes.',
-        'details_page': 'project_supply_chain'
-    },
-    {
-        'title': 'AI for Dynamic Carbon Capture Optimization',
-        'description': 'Optimize operation schedule for CCS or DAC units to maximize captured CO₂ per cost and minimize grid impact.',
-        'details_page': 'project_carbon_capture'
-    },
-    {
-        'title': 'Adversarial ML Defense Systems',
-        'description': 'Detect and mitigate adversarial attacks against deployed ML models across perception and NLP systems.',
-        'details_page': 'project_adversarial_ml'
-    },
-    {
-        'title': 'AI Policy Sandbox Simulator',
-        'description': 'Provide a sandbox to simulate public policy outcomes using AI models before real-world rollout.',
-        'details_page': 'project_policy_sandbox'
-    },
-    {
-        'title': 'Biodiversity Early Warning AI',
-        'description': 'Detect early signs of ecosystem collapse using multimodal sensing and predictive models to trigger conservation actions.',
-        'details_page': 'project_biodiversity_ai'
-    },
-]
+# Load all data from data.json
+with open('data.json') as f:
+    all_data = json.load(f)
 
-research_data = [
-    {
-        'title': 'Fairness and Explainability Under Concept Drift',
-        'description': 'Develops adaptive explanation frameworks that recalibrate interpretability and fairness in dynamically evolving credit models.',
-        'details_page': 'paper_fair_explainable_credit'
-    },
-    {
-        'title': 'Energy-Aware Neural Architecture Search for Edge AI Deployment',
-        'description': 'Introduces energy-optimized NAS frameworks to design lightweight yet powerful AI models for IoT/edge computing.',
-        'details_page': 'paper_edge_ai_nas'
-    },
-    {
-        'title': 'Causal Representation Learning for Predicting Long-Term Treatment Outcomes in Multi-Disease Patients',
-        'description': 'Uses causal ML to model treatment interactions across chronic diseases for personalized long-term outcome prediction.',
-        'details_page': 'paper_causal_health'
-    },
-    {
-        'title': 'Adversarial Machine Learning for Cybersecurity in Military IoT Systems',
-        'description': 'Develops adversarial-resilient ML defenses tailored to defense IoT networks.',
-        'details_page': 'paper_adversarial_cybersecurity'
-    },
-    {
-        'title': 'AI-Driven Multimodal Risk Modeling for Decentralized Finance (DeFi) Systems',
-        'description': 'Introduces multimodal ML models that fuse blockchain transaction graphs, social sentiment, and liquidity flow for risk prediction.',
-        'details_page': 'paper_defi_risk'
-    },
-    {
-        'title': 'Low-Resource Medical Imaging Diagnosis Using Generative Self-Supervised Learning',
-        'description': 'Develops generative SSL techniques for accurate diagnosis in low-resource settings, democratizing AI healthcare access.',
-        'details_page': 'paper_low_resource_med'
-    },
-    {
-        'title': 'Quantum-Inspired Machine Learning for Scalable Graph Neural Networks',
-        'description': 'Applies quantum-inspired algorithms to improve efficiency and scalability of GNNs.',
-        'details_page': 'paper_quantum_gnn'
-    },
-    {
-        'title': 'AI-Driven Dynamic Carbon Capture Optimization Using Real-Time Energy and Weather Data',
-        'description': 'Builds AI systems to optimize carbon capture timing for efficiency and cost savings.',
-        'details_page': 'paper_carbon_capture_opt'
-    },
-]
+projects_data = [item for item in all_data if not item['id'].startswith('paper_')]
+research_data = [item for item in all_data if item['id'].startswith('paper_')]
 
 @app.route('/')
 def index():
-    # Display only the first 2 projects and research papers on the homepage
-    return render_template('index.html', projects=projects_data[:2], research_papers=research_data[:2])
+    projects_to_display = [
+        next((p for p in projects_data if p['id'] == 'blockchain_ai'), None),
+        next((p for p in projects_data if p['id'] == 'creditworthiness'), None)
+    ]
+    projects_to_display = [p for p in projects_to_display if p]
+
+    research_to_display = [
+        next((r for r in research_data if r['id'] == 'paper_fair_explainable_credit'), None),
+        next((r for r in research_data if r['id'] == 'paper_adversarial_cybersecurity'), None)
+    ]
+    research_to_display = [r for r in research_to_display if r]
+
+    # Add details_page to the data
+    for p in projects_to_display:
+        p['details_page'] = 'project_' + p['id'] if not p['id'].startswith('project_') else p['id']
+
+    for r in research_to_display:
+        r['details_page'] = r['id']
+
+    return render_template('index.html', projects=projects_to_display, research_papers=research_to_display)
+
+@app.route('/ai_chat_modal/<item_id>')
+def ai_chat_modal(item_id):
+    # Find item from all_data
+    item = next((item for item in all_data if item['id'] == item_id), None)
+    if not item:
+        return "Item not found", 404
+    return render_template('ai_chat_modal.html', item_title=item['title'], item_id=item_id)
+
+@app.route('/ask_ai', methods=['POST'])
+def ask_ai():
+    # Rate limiting: Track requests per session
+    if 'ai_request_count' not in session:
+        session['ai_request_count'] = 0
+        session['ai_request_reset_time'] = time.time()
+    
+    # Reset counter every 5 minutes
+    if time.time() - session.get('ai_request_reset_time', 0) > 300:
+        session['ai_request_count'] = 0
+        session['ai_request_reset_time'] = time.time()
+    
+    # Limit to 20 requests per 5 minutes
+    if session['ai_request_count'] >= 20:
+        return jsonify({'error': 'Rate limit exceeded. Please wait a few minutes before asking more questions.'}), 429
+    
+    session['ai_request_count'] += 1
+    
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Invalid request format'}), 400
+        
+        item_id = data.get('item_id')
+        query = data.get('query')
+
+        # Input validation
+        if not item_id or not query:
+            return jsonify({'error': 'Missing item_id or query'}), 400
+        
+        # Sanitize inputs
+        item_id = str(item_id).strip()
+        query = str(query).strip()
+        
+        # Validate query length
+        if len(query) > 1000:
+            return jsonify({'error': 'Question is too long. Please keep it under 1000 characters.'}), 400
+        
+        if len(query) < 3:
+            return jsonify({'error': 'Question is too short. Please provide more detail.'}), 400
+
+        # Find the item from all_data
+        item = next((item for item in all_data if item['id'] == item_id), None)
+
+        if not item:
+            return jsonify({'error': 'Item not found'}), 404
+
+        # Build a comprehensive context
+        context = f"Title: {item.get('title', '')}\n"
+        context += f"Description: {item.get('description', '')}\n"
+        if 'tech_stack' in item:
+            context += f"Technology Stack: {', '.join(item.get('tech_stack', []))}\n"
+        context += f"\nDetails: {item.get('details', '')}"
+        
+        # Call AI model with sanitized inputs
+        ai_response = ask_ai_model(context, query)
+        
+        return jsonify({'response': ai_response})
+    
+    except Exception as e:
+        # Log error for debugging
+        print(f"Error in /ask_ai endpoint: {str(e)}")
+        return jsonify({'error': 'An unexpected error occurred. Please try again.'}), 500
 
 @app.route('/projects')
 def all_projects():
+    for p in projects_data:
+        p['details_page'] = 'project_' + p['id'] if not p['id'].startswith('project_') else p['id']
     return render_template('projects.html', projects=projects_data)
 
 @app.route('/research')
 def all_research():
+    for r in research_data:
+        r['details_page'] = r['id']
     return render_template('research.html', research_papers=research_data)
 
 @app.route('/project/blockchain_ai')
@@ -205,7 +217,7 @@ def contact():
         message_body = request.form['message']
 
         message = Mail(
-            from_email='techbidmarketplace@gmail.com',  # Your verified sender email
+            from_email='techbidmarketplace@gmail.com',
             to_emails='techbidmarketplace@gmail.com',
             subject=f"New Message from {name} ({email})",
             html_content=f'<strong>Name:</strong> {name}<br><strong>Email:</strong> {email}<br><strong>Message:</strong><br>{message_body}'
@@ -221,5 +233,5 @@ def contact():
             print(e)
             flash(f'Error sending message.', 'error')
 
-    return render_template('index.html') # Render index.html for GET requests to /contact or if there's an error
+    return render_template('index.html')
 

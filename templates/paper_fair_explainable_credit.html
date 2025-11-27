@@ -35,13 +35,13 @@
 
         <p>This research explores how AI credit-scoring models can stay fair, transparent, and reliable over time even as customer behavior, economics, or demographics change. It introduces an adaptive explanation framework that monitors how model decisions evolve, detects data or concept drift, and ensures that explanations remain stable and fair across groups like gender, income, or region. Using metrics for drift detection, fairness auditing, and explainability stability (such as cosine similarity, Kendall tau, and Jaccard overlap), the study builds a foundation for ethical and trustworthy AI in financial decision-making. Beyond credit scoring, the framework applies to any industry using predictive models from insurance and healthcare to retail helping organizations balance accuracy, fairness, and accountability while maintaining regulatory compliance and public trust.</p>
         <div class="button-group" style="margin-top: 1.5rem;">
-            <a href="https://doi.org/10.48550/arXiv.2511.03807" class="btn" target="_blank" rel="noopener noreferrer" style="margin-right: 1rem;"><i class="fas fa-file-alt"></i> View Article</a>
+            <a href="https://arxiv.org/pdf/2511.03807" class="btn" target="_blank" rel="noopener noreferrer" style="margin-right: 1rem;"><i class="fas fa-file-alt"></i> View Article</a>
             <a href="https://colab.research.google.com/drive/1hWTiUTnV63zfOhCUAKPHrq5SbcbN6Dik?usp=sharing" class="btn" target="_blank" rel="noopener noreferrer"><i class="fas fa-code"></i> Source Code</a>
         </div>
 
         <h2>📈 Business Impact, Profitability & Real World Deployment</h2>
         <h3>💰 Business Impact and Profitability</h3>
-        <a href="{{ url_for('static', filename='business_impact_rectangles.png') }}" download>
+        <a href="{{ url_for('static', filename='mlops_main.png') }}" download>
             <img src="{{ url_for('static', filename='business_impact_rectangles.png') }}" alt="Business Impact & Profitability" class="zoomable-image" style="width:100%; max-width: 800px; margin: 1rem 0; cursor: pointer;">
         </a>
         <p>This research bridges responsible AI and business performance by showing how adaptive explainability can directly improve trust, reduce risk, and enhance profit across industries not just in credit scoring.</p>
@@ -82,10 +82,21 @@
         <!-- More content will be added here later -->
     </section>
 
-    <footer>
-        <p class="titles"> Data Engineer | Machine Learning Engineer | Statistician</p>
-        <p class="copyright">&copy; 2025 Shivogo John. All rights reserved.</p>
-    </footer>
+        <footer>
+
+            <div class="footer-links">
+
+                <a href="tel:+254704234829" target="_blank" rel="noopener noreferrer"><i class="fas fa-phone"></i></a>
+
+                <a href="mailto:shivogojohn@gmail.com" target="_blank" rel="noopener noreferrer"><i class="fas fa-envelope"></i></a>
+
+            </div>
+
+            <p class="titles">Machine Learning Engineer | Data Engineer | Statistician</p>
+
+            <p class="copyright">&copy; 2025 Shivogo John. All rights reserved.</p>
+
+        </footer>
 
 
     {% with messages = get_flashed_messages(with_categories=true) %}
