@@ -137,6 +137,10 @@ def project_default():
 def project_sme_twins():
     return render_template('project_sme_twins.html')
 
+@app.route('/project/ml_audit')
+def project_ml_audit():
+    return render_template('project_ml_audit.html')
+
 @app.route('/project/creditworthiness')
 def project_creditworthiness():
     return render_template('project_creditworthiness.html')
